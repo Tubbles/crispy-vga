@@ -1,0 +1,2 @@
+/usr/local/diamond/3.11_x64/bin/lin64/pgrcmd
+bindir="$(realpath "$(dirname $0)")"
