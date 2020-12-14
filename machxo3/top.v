@@ -1,24 +1,27 @@
-module top (red, green, blue, hsync, vsync);
+module top (red, green, blue, hsync, vsync, xtal);
     // External signals
 	output reg red;
 	output reg green;
 	output reg blue;
 	output reg hsync;
 	output reg vsync;
+	
+	input wire xtal;
 
     // Internal signals
-    wire fpga_clock;
+//    wire fpga_clock;
     wire pclk;
     wire pclk_lock;
     reg [31:0] col_counter;
     reg [31:0] row_counter;
+	reg temp;
 
     // Internal modules
-    OSCH #(.NOM_FREQ("133.0")) rc_oscillator(
-        .STDBY(1'b0),
-        .OSC(fpga_clock));
+//    OSCH #(.NOM_FREQ("133.0")) rc_oscillator(
+//        .STDBY(1'b0),
+//        .OSC(fpga_clock));
 		
-	pll pixel_clock (.CLKI(fpga_clock), .CLKOP(pclk), .LOCK(pclk_lock));
+	pll pixel_clock (.CLKI(xtal), .CLKOP(pclk), .LOCK(pclk_lock));
 
     initial begin
         col_counter = 32'b0;
@@ -28,6 +31,7 @@ module top (red, green, blue, hsync, vsync);
 		blue = 1'b0;
 		hsync = 1'b1;
 		vsync = 1'b1;
+		temp = xtal;
     end
 
 	// Below values are in pixels
@@ -72,6 +76,12 @@ module top (red, green, blue, hsync, vsync);
                 // End of back porch
                 row_counter <= 0;
             end
+			
+			if ((col_counter <= `VISIBLE_WIDTH) && (row_counter <= `VISIBLE_HEIGHT)) begin
+				red = 1'b1;
+			end else begin
+				red = 1'b0;
+			end
         end
     end
 
